@@ -7,9 +7,13 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
-    "target": "esnext",
-    "types": [],
+    "module": "NodeNext",
+    "target": "ES2022",
+    "types": [
+      "node"
+    ],
+    "moduleResolution": "NodeNext",
+
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -23,6 +27,10 @@
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+
+    "noEmit": true, 
+    
+    "allowImportingTsExtensions": true, 
 
     // Style Options
     // "noImplicitReturns": true,
