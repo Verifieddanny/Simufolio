@@ -21,7 +21,7 @@ export const createSubscription = async (data: Subscription) => {
   return result.insertedId;
 };
 
-export const getSubscriptionByUserId = async (
+export const getSubscriptionsByUserId = async (
   telegramId: string
 ): Promise<Subscription[]> => {
   const db = await connectToDatabase();
@@ -32,6 +32,17 @@ export const getSubscriptionByUserId = async (
     .toArray();
 
   return subscriptions as Subscription[];
+};
+
+export const getSubscriptionById = async (
+  subscriptionId: ObjectId
+): Promise<Subscription | null> => {
+  const db = await connectToDatabase();
+  const subscription = await db
+    .collection<Subscription>(COLLECTION_NAME)
+    .findOne({ _id: subscriptionId });
+
+  return subscription; 
 };
 
 export const deleteSubscription = async (subscriptionId: ObjectId) => {

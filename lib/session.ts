@@ -1,4 +1,4 @@
-import { connectToDatabase } from "./db.js";
+import { connectToDatabase } from "./db.ts";
 import { ObjectId } from "mongodb"; 
 
 const SESSION_COLLECTION = "sessions";
@@ -42,7 +42,7 @@ export async function getSession(telegramId: string): Promise<SessionData | null
 
 
 /**
- * Clears the session after the process is complete (optional, but good practice).
+ * Clears the session after the process is complete.
  */
 export async function clearSession(telegramId: string): Promise<void> {
   const db = await connectToDatabase();
