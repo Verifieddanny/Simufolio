@@ -86,7 +86,7 @@ interface CoinListItem {
   name: string;
 }
 
-export const getCoinList = async (): Promise<CoinListItem[]> => {
+export const getCoinListV1 = async (): Promise<CoinListItem[]> => {
   const url = `${BASE_URL}/coins/list?${API_KEY_PARAM}`;
 
   try {
@@ -108,7 +108,27 @@ export const getCoinList = async (): Promise<CoinListItem[]> => {
   }
 };
 
+export const getCoinList = async (): Promise<CoinListItem[]> => {
+  const url = `${BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&${API_KEY_PARAM}`;
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      const errorBody = await response.json();
+      console.error(
+        `CoinGecko Coin List API Error (${response.status}):`,
+        errorBody
+      );
+      return [];
+    }
 
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Failed to fetch coin list:", error);
+    return [];
+  }
+};
 /**
  * Fetches comprehensive metadata for bot display.
  */
@@ -118,22 +138,55 @@ export const getCoinMetadata = async (coinId: string) => {
   try {
     const response = await fetch(url);
     if (!response.ok) {
-        console.error(`Metadata API Error (${response.status})`);
-        return null;
+      console.error(`Metadata API Error (${response.status})`);
+      return null;
     }
     const data = await response.json();
-    
+
     return {
-        id: data.id,
-        name: data.name,
-        symbol: data.symbol.toUpperCase(),
-        imageUrl: data.image.small, 
-        currentPrice: data.market_data.current_price.usd,
-        marketRank: data.market_data.market_cap_rank,
+      id: data.id,
+      name: data.name,
+      symbol: data.symbol.toUpperCase(),
+      imageUrl: data.image.small,
+      currentPrice: data.market_data.current_price.usd,
+      marketRank: data.market_data.market_cap_rank,
     };
-    
   } catch (error) {
     console.error("Failed to fetch coin metadata:", error);
     return null;
   }
+};
+
+/**
+ * Searches for coins by name or symbol.
+ * @param query The user's search query (e.g., 'ether' or 'SOL').
+ * @returns An array of matching coin objects (ID, symbol, name).
+ */
+interface SearchResultCoin {
+  id: string;
+  name: string;
+  symbol: string;
+  market_cap_rank: number | null;
 }
+
+export const searchCoins = async (
+  query: string
+): Promise<SearchResultCoin[]> => {
+  const url = `${BASE_URL}/search?query=${encodeURIComponent(
+    query
+  )}&${API_KEY_PARAM}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`CoinGecko Search API Error (${response.status})`);
+      return [];
+    }
+    const data = await response.json();
+
+    return Array.isArray(data.coins) ? data.coins : [];
+  } catch (error) {
+    console.error("Failed to fetch search results:", error);
+    return [];
+  }
+};
