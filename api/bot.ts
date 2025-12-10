@@ -1,7 +1,4 @@
-import "https://deno.land/std@0.207.0/dotenv/load.ts";
-// import dotenv from "dotenv"
-// dotenv.config()
-// import { IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage, ServerResponse } from "http";
 import { Bot, InlineKeyboard, webhookCallback, Context } from "grammy";
 import {
   getCoinList,
@@ -9,13 +6,13 @@ import {
   getCoinMetadata,
   getCurrentPrice,
   searchCoins,
-} from "./lib/coinGeckoApi.ts";
+} from "../lib/coinGeckoApi.ts";
 import {
   createSubscription,
   getSubscriptionById,
   getSubscriptionsByUserId,
-} from "./lib/portfolio.ts";
-import { getSession, saveSession, clearSession } from "./lib/session.ts";
+} from "../lib/portfolio.ts";
+import { getSession, saveSession, clearSession } from "../lib/session.ts";
 import { ObjectId } from "mongodb";
 
 const token = process.env.TG_BOT_API_KEY!;
@@ -186,6 +183,7 @@ bot.callbackQuery(/^confirm_sub:(.+):(.+):(.+)$/, async (ctx) => {
     startDate: startDate,
     updateInterval: interval ?? "",
     initialCoinPrice: initialCoinPrice,
+    lastNotificationDate: startDate,
   };
 
   try {
@@ -391,24 +389,24 @@ bot.callbackQuery("back_main", (ctx) =>
 );
 bot.on("callback_query", (ctx) => ctx.answerCallbackQuery());
 
+//development: long polling
 bot.start();
 
-// Vercel Export Handler
-// export default async (req: IncomingMessage, res: ServerResponse) => {
-//     if (req.method !== "POST") {
-//       res.writeHead(200, { "Content-Type": "text/plain" });
-//       res.end("The bot handler is listening for POST requests.");
-//       return;
-//     }
+export default async (req: IncomingMessage, res: ServerResponse) => {
+  if (req.method !== "POST") {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("The bot handler is listening for POST requests.");
+    return;
+  }
 
-//     const handler = webhookCallback(bot, "https");
+  const handler = webhookCallback(bot, "https");
 
-//     try {
-//       await handler(req, res);
-//     } catch (error) {
-//       console.error("GrammY webhook handler error:", error);
+  try {
+    await handler(req, res);
+  } catch (error) {
+    console.error("GrammY webhook handler error:", error);
 
-//       res.writeHead(500, { "Content-Type": "text/plain" });
-//       res.end("Internal Server Error");
-//     }
-//   };
+    res.writeHead(500, { "Content-Type": "text/plain" });
+    res.end("Internal Server Error");
+  }
+};
