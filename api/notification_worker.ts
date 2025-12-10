@@ -1,12 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { connectToDatabase } from "../lib/db.js";
-import { getCurrentPrice } from "../lib/coinGeckoApi.js";
+import { connectToDatabase } from "./lib/db.js";
+import { getCurrentPrice } from "./lib/coinGeckoApi.js";
 import {
   sendTelegramNotification,
   isNotificationDue,
-} from "../lib/notification_helpers.js";
+} from "./lib/notification_helpers.js";
 import { ObjectId } from "mongodb";
-import type { Subscription } from "../lib/portfolio.js";
+import type { Subscription } from "./lib/portfolio.js";
 
 const SUBSCRIPTION_COLLECTION = "subscriptions";
 
