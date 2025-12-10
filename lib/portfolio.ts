@@ -1,9 +1,9 @@
 import { ObjectId } from "mongodb";
-import { connectToDatabase } from "./db.ts";
+import { connectToDatabase } from "./db.js";
 
 const COLLECTION_NAME = "subscriptions";
 
-interface Subscription {
+export interface Subscription {
   _id?: ObjectId;
   telegramId: string;
   cryptoId: string;
@@ -11,6 +11,7 @@ interface Subscription {
   startDate: Date;
   updateInterval: string;
   initialCoinPrice: number;
+  lastNotificationDate: Date;
 }
 
 export const createSubscription = async (data: Subscription) => {
