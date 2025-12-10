@@ -390,7 +390,7 @@ bot.callbackQuery("back_main", (ctx) =>
 bot.on("callback_query", (ctx) => ctx.answerCallbackQuery());
 
 //development: long polling
-bot.start();
+// bot.start();
 
 export default async (req: IncomingMessage, res: ServerResponse) => {
   if (req.method !== "POST") {
