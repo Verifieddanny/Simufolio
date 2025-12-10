@@ -56,5 +56,6 @@ export function isNotificationDue(sub: Subscription): boolean {
   const lastNotif = sub.lastNotificationDate.getTime();
   const now = Date.now();
 
-  return now - lastNotif >= intervalMs;
+  // return now - lastNotif >= intervalMs;
+  return true
 }
