@@ -1,9 +1,9 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { connectToDatabase } from '../lib/db.ts'; 
-import { getCurrentPrice } from '../lib/coinGeckoApi.ts';
-import { sendTelegramNotification, isNotificationDue } from '../lib/notification_helpers.ts';
+import { connectToDatabase } from '../lib/db.js'; 
+import { getCurrentPrice } from '../lib/coinGeckoApi.js';
+import { sendTelegramNotification, isNotificationDue } from '../lib/notification_helpers.js';
 import { ObjectId } from 'mongodb';
-import type { Subscription } from '../lib/portfolio.ts';
+import type { Subscription } from '../lib/portfolio.js';
 
 const SUBSCRIPTION_COLLECTION = 'subscriptions';
 

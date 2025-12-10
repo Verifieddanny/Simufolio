@@ -1,4 +1,4 @@
-import { connectToDatabase } from "./db.ts";
+import { connectToDatabase } from "./db.js";
 import { ObjectId } from "mongodb"; 
 
 const SESSION_COLLECTION = "sessions";

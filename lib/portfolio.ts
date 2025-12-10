@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { connectToDatabase } from "./db.ts";
+import { connectToDatabase } from "./db.js";
 
 const COLLECTION_NAME = "subscriptions";
 

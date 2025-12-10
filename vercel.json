@@ -1,8 +1,8 @@
 {
-    "crons": [
-        {
-            "path": "/api/notification_worker",
-            "schedule": "*/5 * * * *" 
-        }
-    ]
+  "functions": {
+    "api/bot.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
 }
