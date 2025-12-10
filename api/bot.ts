@@ -6,13 +6,13 @@ import {
   getCoinMetadata,
   getCurrentPrice,
   searchCoins,
-} from "../lib/coinGeckoApi.js";
+} from "./lib/coinGeckoApi.js";
 import {
   createSubscription,
   getSubscriptionById,
   getSubscriptionsByUserId,
-} from "../lib/portfolio.js";
-import { getSession, saveSession, clearSession } from "../lib/session.js";
+} from "./lib/portfolio.js";
+import { getSession, saveSession, clearSession } from "./lib/session.js";
 import { ObjectId } from "mongodb";
 
 const token = process.env.TG_BOT_API_KEY!;
