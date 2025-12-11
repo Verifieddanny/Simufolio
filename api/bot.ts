@@ -202,7 +202,7 @@ bot.callbackQuery(/^confirm_sub:(.+):(.+):(.+)$/, async (ctx) => {
       )}`,
       { parse_mode: "HTML" }
     );
-    await clearSession(telegramId);
+    // await clearSession(telegramId);
   } catch (dbError) {
     console.error("Database error creating subscription:", dbError);
     await ctx.editMessageText(
