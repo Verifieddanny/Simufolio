@@ -49,13 +49,11 @@ export async function sendTelegramNotification(
  * @returns boolean - True if the notification is due.
  */
 export function isNotificationDue(sub: Subscription): boolean {
-  //   const intervalMs = NOTIFICATION_INTERVALS[sub.updateInterval];
-  const intervalMs = 5 * 60 * 60;
+  const intervalMs = NOTIFICATION_INTERVALS[sub.updateInterval];
   if (!intervalMs) return false;
 
   const lastNotif = sub.lastNotificationDate.getTime();
   const now = Date.now();
 
-  // return now - lastNotif >= intervalMs;
-  return true
+  return now - lastNotif >= intervalMs;
 }
