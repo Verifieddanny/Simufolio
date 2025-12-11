@@ -53,23 +53,24 @@ export default async (req: IncomingMessage, res: ServerResponse) => {
       const plSign = profitLoss >= 0 ? "+" : "";
 
       const message = `
-${deltaEmoji} \*TimeVest Update\: ${sub.cryptoId.toUpperCase()}\*
-Subscription\: ${sub.updateInterval}
+${deltaEmoji} <b>TimeVest Update: ${sub.cryptoId.toUpperCase()}</b>
+Subscription: ${sub.updateInterval}
 
-\*Initial Investment\:\* $${sub.investmentAmount.toFixed(2)}\\
-\*Current Value\:\* $${currentValue.toFixed(2)}\\
-\*Total P&L\:\* ${plSign}\\$${profitLoss.toFixed(
+<u>Investment Overview:</u>
+<b>Initial Investment:</b> $${sub.investmentAmount.toFixed(2)}
+<b>Current Value:</b> $${currentValue.toFixed(2)}
+<b>Total P&L:</b> ${plSign}$${profitLoss.toFixed(
         2
-      )}\\ (${plSign}${percentageChange.toFixed(2)}\\%)\
-Current Price\: $${currentPrice.toFixed(2)}\\
+      )} (${plSign}${percentageChange.toFixed(2)}%)
+Current Price: $${currentPrice.toFixed(2)}
 
-To see all details\, use the /start command\.
-            `;
-      // 4. Send Notification
+To see all details, use the /start command.
+    `;
+
       const success = await sendTelegramNotification(
         sub.telegramId,
         message,
-        "MarkdownV2"
+        "HTML" 
       );
 
       if (success) {
