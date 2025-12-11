@@ -11,6 +11,7 @@ import {
   createSubscription,
   getSubscriptionById,
   getSubscriptionsByUserId,
+  deleteSubscription,
 } from "../lib/portfolio.js";
 import { getSession, saveSession } from "../lib/session.js";
 import { ObjectId } from "mongodb";
@@ -23,10 +24,7 @@ const bot = new Bot(token);
 function escapeHtml(input: string | number | null | undefined) {
   if (input === null || input === undefined) return "";
   const str = String(input);
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 bot.command("start", async (ctx) => {
@@ -78,9 +76,11 @@ bot.callbackQuery(/^sim_coin:(.+)$/, async (ctx) => {
 
   await ctx.answerCallbackQuery();
 
-  const message = `You selected <b>${escapeHtml(
-    metadata.name
-  )} (${escapeHtml(metadata.symbol)})</b> (${metadata.marketRank ? `#${metadata.marketRank}` : "Unranked"}).\n\nCurrent Price: $${metadata.currentPrice.toFixed(
+  const message = `You selected <b>${escapeHtml(metadata.name)} (${escapeHtml(
+    metadata.symbol
+  )})</b> (${
+    metadata.marketRank ? `#${metadata.marketRank}` : "Unranked"
+  }).\n\nCurrent Price: $${metadata.currentPrice.toFixed(
     2
   )}\n\n<b>Ready for the fiat injection?</b> 💵 Reply with the exact US Dollar amount (e.g., <code>500</code>, <code>100.50</code>) you wish to virtually invest.`;
 
@@ -155,7 +155,9 @@ bot.on("message:text", async (ctx) => {
     .row();
 
   await ctx.reply(
-    `💸 Investment Confirmation: You are minting <b>$${amount.toFixed(2)}</b> into <b>${escapeHtml(
+    `💸 Investment Confirmation: You are minting <b>$${amount.toFixed(
+      2
+    )}</b> into <b>${escapeHtml(
       coinId.toUpperCase()
     )}</b>.\n\nHow often should I ping your portfolio?`,
     { parse_mode: "HTML", reply_markup: intervalKeyboard }
@@ -197,9 +199,11 @@ bot.callbackQuery(/^confirm_sub:(.+):(.+):(.+)$/, async (ctx) => {
     await ctx.editMessageText(
       `✅ <b>Simulation Deployed!</b> Your virtual investment is now live on the blockchain tracker! ⛓️\n\n<b>Asset:</b> ${escapeHtml(
         (coinId ?? "").toUpperCase()
-      )}\n<b>Initial Investment:</b> $${amount.toFixed(2)}\n<b>Start Price:</b> $${initialCoinPrice.toFixed(2)}\n<b>Updates:</b> ${escapeHtml(
-        interval
-      )}`,
+      )}\n<b>Initial Investment:</b> $${amount.toFixed(
+        2
+      )}\n<b>Start Price:</b> $${initialCoinPrice.toFixed(
+        2
+      )}\n<b>Updates:</b> ${escapeHtml(interval)}`,
       { parse_mode: "HTML" }
     );
     // await clearSession(telegramId);
@@ -281,7 +285,9 @@ bot.callbackQuery(/^view_details:(.+)$/, async (ctx) => {
       return ctx.editMessageText(
         `⚠️ Could not fetch the current price for ${escapeHtml(
           sub.cryptoId.toUpperCase()
-        )}.\n\n<b>Simulation Data:</b>\nInitial Investment: $${sub.investmentAmount.toFixed(2)}\nStart Price: $${sub.initialCoinPrice.toFixed(2)}`,
+        )}.\n\n<b>Simulation Data:</b>\nInitial Investment: $${sub.investmentAmount.toFixed(
+          2
+        )}\nStart Price: $${sub.initialCoinPrice.toFixed(2)}`,
         { parse_mode: "HTML" }
       );
     }
@@ -296,9 +302,23 @@ bot.callbackQuery(/^view_details:(.+)$/, async (ctx) => {
     const plSign = profitLoss >= 0 ? "+" : "";
 
     const message = `
-        <b>${escapeHtml(deltaEmoji + ' Live Performance: ' + sub.cryptoId.toUpperCase())}</b>\n\n<b>Investment Overview:</b>\nInitial Investment: $${sub.investmentAmount.toFixed(2)}\nCurrent Value: $${currentValue.toFixed(2)}\nProfit/Loss (P&L): ${plSign}$${profitLoss.toFixed(2)}\n% Change: ${plSign}${percentageChange.toFixed(2)}%\n\n<b>Data Points:</b>\nStart Price (${escapeHtml(
+        <b>${escapeHtml(
+          deltaEmoji + " Live Performance: " + sub.cryptoId.toUpperCase()
+        )}</b>\n\n<b>Investment Overview:</b>\nInitial Investment: $${sub.investmentAmount.toFixed(
+      2
+    )}\nCurrent Value: $${currentValue.toFixed(
+      2
+    )}\nProfit/Loss (P&L): ${plSign}$${profitLoss.toFixed(
+      2
+    )}\n% Change: ${plSign}${percentageChange.toFixed(
+      2
+    )}%\n\n<b>Data Points:</b>\nStart Price (${escapeHtml(
       sub.startDate.toLocaleDateString()
-    )}): $${initialCoinPrice.toFixed(2)}\nCurrent Price: $${currentPrice.toFixed(2)}\nInitial Quantity: ${initialQuantity.toFixed(8)} ${escapeHtml(
+    )}): $${initialCoinPrice.toFixed(
+      2
+    )}\nCurrent Price: $${currentPrice.toFixed(
+      2
+    )}\nInitial Quantity: ${initialQuantity.toFixed(8)} ${escapeHtml(
       sub.cryptoId.toUpperCase()
     )}\n\n<b>Updates:</b> ${escapeHtml(sub.updateInterval)}\n\n---`;
 
@@ -344,10 +364,13 @@ bot.callbackQuery("view_top_10", async (ctx) => {
 
   keyboard.text("🔙 Back to Main Menu", "back_main").row();
 
-  await ctx.editMessageText("🏆 <b>Top 10 by Market Cap</b> 👇 Choose your giant.", {
-    parse_mode: "HTML",
-    reply_markup: keyboard,
-  });
+  await ctx.editMessageText(
+    "🏆 <b>Top 10 by Market Cap</b> 👇 Choose your giant.",
+    {
+      parse_mode: "HTML",
+      reply_markup: keyboard,
+    }
+  );
 });
 
 bot.callbackQuery("start_search", async (ctx) => {
@@ -373,6 +396,67 @@ bot.callbackQuery("back_main", (ctx) =>
     ),
   })
 );
+
+bot.callbackQuery(/^delete_sub:(.+)$/, async (ctx) => {
+  const subscriptionIdStr = ctx.match[1];
+
+  const sub = await getSubscriptionById(new ObjectId(subscriptionIdStr));
+
+  await ctx.answerCallbackQuery();
+
+  if (!sub) {
+    return ctx.editMessageText("❌ Simulation details not found.", {
+      parse_mode: "HTML",
+    });
+  }
+
+  const message = `⚠️ <b>CONFIRM DELETION</b>\n\nAre you sure you want to permanently delete the simulation for <b>${escapeHtml(
+    sub.cryptoId.toUpperCase()
+  )}</b> (Investment: $${sub.investmentAmount.toFixed(2)})?`;
+
+  const keyboard = new InlineKeyboard()
+    .text("✅ YES, Delete It", `confirm_delete:${subscriptionIdStr}`)
+    .row()
+    .text("⬅️ NO, Go Back", `view_details:${subscriptionIdStr}`);
+
+  await ctx.editMessageText(message, {
+    parse_mode: "HTML",
+    reply_markup: keyboard,
+  });
+});
+
+bot.callbackQuery(/^confirm_delete:(.+)$/, async (ctx) => {
+  const subscriptionIdStr = ctx.match[1];
+  const subscriptionId = new ObjectId(subscriptionIdStr);
+
+  await ctx.answerCallbackQuery("Executing deletion...");
+
+  try {
+    const deletedCount = await deleteSubscription(subscriptionId);
+
+    if (deletedCount > 0) {
+      await ctx.editMessageText(
+        "🗑️ <b>Simulation Deleted.</b> Your investment tracking has been permanently removed.",
+        {
+          parse_mode: "HTML",
+          reply_markup: new InlineKeyboard().text(
+            "📊 View Remaining Subscriptions",
+            "view_subs"
+          ),
+        }
+      );
+    } else {
+      await ctx.editMessageText(
+        "❌ Error: Simulation not found or already deleted."
+      );
+    }
+  } catch (error) {
+    console.error("Database error during deletion:", error);
+    await ctx.editMessageText(
+      "An unexpected database error occurred. Deletion failed."
+    );
+  }
+});
 bot.on("callback_query", (ctx) => ctx.answerCallbackQuery());
 
 //development: long polling
