@@ -53,7 +53,7 @@ export default async (req: IncomingMessage, res: ServerResponse) => {
       const plSign = profitLoss >= 0 ? "+" : "";
 
       const message = `
-${deltaEmoji} <b>TimeVest Update: ${sub.cryptoId.toUpperCase()}</b>
+${deltaEmoji} <b>Simufolio Update: ${sub.cryptoId.toUpperCase()}</b>
 Subscription: ${sub.updateInterval}
 
 <u>Investment Overview:</u>
