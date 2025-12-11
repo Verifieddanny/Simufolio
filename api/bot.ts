@@ -6,18 +6,28 @@ import {
   getCoinMetadata,
   getCurrentPrice,
   searchCoins,
-} from "./lib/coinGeckoApi.js";
+} from "../lib/coinGeckoApi.js";
 import {
   createSubscription,
   getSubscriptionById,
   getSubscriptionsByUserId,
-} from "./lib/portfolio.js";
-import { getSession, saveSession, clearSession } from "./lib/session.js";
+} from "../lib/portfolio.js";
+import { getSession, saveSession, clearSession } from "../lib/session.js";
 import { ObjectId } from "mongodb";
 
 const token = process.env.TG_BOT_API_KEY!;
 if (!token) throw new Error("TG_BOT_API_KEY is unset");
 const bot = new Bot(token);
+
+// Simple HTML escaper for safe insertion into Telegram HTML parse_mode messages
+function escapeHtml(input: string | number | null | undefined) {
+  if (input === null || input === undefined) return "";
+  const str = String(input);
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 bot.command("start", async (ctx) => {
   const keyboard = new InlineKeyboard()
@@ -26,9 +36,9 @@ bot.command("start", async (ctx) => {
     .text("📊 View My Subscriptions", "view_subs");
 
   await ctx.reply(
-    "Welcome to *SimuFolio!* 🚀 Ready to track your virtual gains? Choose your action:",
+    `Welcome to <b>SimuFolio!</b> 🚀 Ready to track your virtual gains? Choose your action:`,
     {
-      parse_mode: "MarkdownV2",
+      parse_mode: "HTML",
       reply_markup: keyboard,
     }
   );
@@ -68,16 +78,14 @@ bot.callbackQuery(/^sim_coin:(.+)$/, async (ctx) => {
 
   await ctx.answerCallbackQuery();
 
-  const message = `You selected *${metadata.name} (${metadata.symbol})* (${
-    metadata.marketRank ? `#${metadata.marketRank}` : "Unranked"
-  }). 
-    
-    Current Price: $${metadata.currentPrice.toFixed(2)}
-    
-    *Ready for the fiat injection?* 💵 Reply with the exact US Dollar amount (e.g., \`500\`, \`100.50\`) you wish to virtually invest.`;
+  const message = `You selected <b>${escapeHtml(
+    metadata.name
+  )} (${escapeHtml(metadata.symbol)})</b> (${metadata.marketRank ? `#${metadata.marketRank}` : "Unranked"}).\n\nCurrent Price: $${metadata.currentPrice.toFixed(
+    2
+  )}\n\n<b>Ready for the fiat injection?</b> 💵 Reply with the exact US Dollar amount (e.g., <code>500</code>, <code>100.50</code>) you wish to virtually invest.`;
 
   await ctx.reply(message, {
-    parse_mode: "MarkdownV2",
+    parse_mode: "HTML",
     reply_markup: {
       force_reply: true,
       selective: true,
@@ -98,8 +106,8 @@ bot.on("message:text", async (ctx) => {
     if (results.length === 0) {
       await saveSession(telegramId, null);
       return ctx.reply(
-        "🥶 *Zero HODLers found.* No tokens match that query. Try another search term!",
-        { parse_mode: "MarkdownV2" }
+        `🥶 <b>Zero HODLers found.</b> No tokens match that query. Try another search term!`,
+        { parse_mode: "HTML" }
       );
     }
 
@@ -147,12 +155,10 @@ bot.on("message:text", async (ctx) => {
     .row();
 
   await ctx.reply(
-    `💸 Investment Confirmation: You are minting *$${amount.toFixed(
-      2
-    )}* into *${coinId.toUpperCase()}*.
-        
-        How often should I ping your portfolio?`,
-    { parse_mode: "MarkdownV2", reply_markup: intervalKeyboard }
+    `💸 Investment Confirmation: You are minting <b>$${amount.toFixed(2)}</b> into <b>${escapeHtml(
+      coinId.toUpperCase()
+    )}</b>.\n\nHow often should I ping your portfolio?`,
+    { parse_mode: "HTML", reply_markup: intervalKeyboard }
   );
 });
 
@@ -188,15 +194,13 @@ bot.callbackQuery(/^confirm_sub:(.+):(.+):(.+)$/, async (ctx) => {
 
   try {
     const _subscriptionId = await createSubscription(subscriptionData);
-
     await ctx.editMessageText(
-      `✅ *Simulation Deployed!* Your virtual investment is now live on the blockchain tracker! ⛓️
-        
-        *Asset:* ${(coinId ?? "").toUpperCase()}
-        *Initial Investment:* $${amount.toFixed(2)}
-        *Start Price:* $${initialCoinPrice.toFixed(2)}
-        *Updates:* ${interval}`,
-      { parse_mode: "MarkdownV2" }
+      `✅ <b>Simulation Deployed!</b> Your virtual investment is now live on the blockchain tracker! ⛓️\n\n<b>Asset:</b> ${escapeHtml(
+        (coinId ?? "").toUpperCase()
+      )}\n<b>Initial Investment:</b> $${amount.toFixed(2)}\n<b>Start Price:</b> $${initialCoinPrice.toFixed(2)}\n<b>Updates:</b> ${escapeHtml(
+        interval
+      )}`,
+      { parse_mode: "HTML" }
     );
     await clearSession(telegramId);
   } catch (dbError) {
@@ -243,8 +247,8 @@ bot.callbackQuery("view_subs", async (ctx) => {
 
     keyboard.text("🔙 Back to Main Menu", "back_main").row();
 
-    await ctx.editMessageText("📊 **Your Active Simulations:**", {
-      parse_mode: "Markdown",
+    await ctx.editMessageText("📊 <b>Your Active Simulations:</b>", {
+      parse_mode: "HTML",
       reply_markup: keyboard,
     });
   } catch (error) {
@@ -275,12 +279,10 @@ bot.callbackQuery(/^view_details:(.+)$/, async (ctx) => {
 
     if (currentPrice === null) {
       return ctx.editMessageText(
-        `⚠️ Could not fetch the current price for ${sub.cryptoId.toUpperCase()}.
-            
-            **Simulation Data:**
-            Initial Investment: $${sub.investmentAmount.toFixed(2)}
-            Start Price: $${sub.initialCoinPrice.toFixed(2)}`,
-        { parse_mode: "Markdown" }
+        `⚠️ Could not fetch the current price for ${escapeHtml(
+          sub.cryptoId.toUpperCase()
+        )}.\n\n<b>Simulation Data:</b>\nInitial Investment: $${sub.investmentAmount.toFixed(2)}\nStart Price: $${sub.initialCoinPrice.toFixed(2)}`,
+        { parse_mode: "HTML" }
       );
     }
 
@@ -294,27 +296,11 @@ bot.callbackQuery(/^view_details:(.+)$/, async (ctx) => {
     const plSign = profitLoss >= 0 ? "+" : "";
 
     const message = `
-        **${deltaEmoji} Live Performance: ${sub.cryptoId.toUpperCase()}**
-        
-        *Investment Overview:*
-        | Initial Investment | **$${sub.investmentAmount.toFixed(2)}**
-        | Current Value | **$${currentValue.toFixed(2)}**
-        | Profit/Loss (P&L) | **${plSign}$${profitLoss.toFixed(2)}**
-        | **% Change** | **${plSign}${percentageChange.toFixed(2)}%**
-        
-        *Data Points:*
-        | Start Price (${sub.startDate.toLocaleDateString()}) | $${initialCoinPrice.toFixed(
-      2
-    )}
-        | Current Price | $${currentPrice.toFixed(2)}
-        | Initial Quantity | ${initialQuantity.toFixed(
-          8
-        )} ${sub.cryptoId.toUpperCase()}
-        
-        **Updates:** ${sub.updateInterval}
-
-        ---
-        `;
+        <b>${escapeHtml(deltaEmoji + ' Live Performance: ' + sub.cryptoId.toUpperCase())}</b>\n\n<b>Investment Overview:</b>\nInitial Investment: $${sub.investmentAmount.toFixed(2)}\nCurrent Value: $${currentValue.toFixed(2)}\nProfit/Loss (P&L): ${plSign}$${profitLoss.toFixed(2)}\n% Change: ${plSign}${percentageChange.toFixed(2)}%\n\n<b>Data Points:</b>\nStart Price (${escapeHtml(
+      sub.startDate.toLocaleDateString()
+    )}): $${initialCoinPrice.toFixed(2)}\nCurrent Price: $${currentPrice.toFixed(2)}\nInitial Quantity: ${initialQuantity.toFixed(8)} ${escapeHtml(
+      sub.cryptoId.toUpperCase()
+    )}\n\n<b>Updates:</b> ${escapeHtml(sub.updateInterval)}\n\n---`;
 
     const keyboard = new InlineKeyboard()
       .text("🔄 Refresh Data", `view_details:${subscriptionIdStr}`)
@@ -324,7 +310,7 @@ bot.callbackQuery(/^view_details:(.+)$/, async (ctx) => {
       .text("🔙 View All Subscriptions", "view_subs");
 
     await ctx.editMessageText(message, {
-      parse_mode: "Markdown",
+      parse_mode: "HTML",
       reply_markup: keyboard,
     });
   } catch (error) {
@@ -358,8 +344,8 @@ bot.callbackQuery("view_top_10", async (ctx) => {
 
   keyboard.text("🔙 Back to Main Menu", "back_main").row();
 
-  await ctx.editMessageText("🏆 *Top 10 by Market Cap* 👇 Choose your giant.", {
-    parse_mode: "MarkdownV2",
+  await ctx.editMessageText("🏆 <b>Top 10 by Market Cap</b> 👇 Choose your giant.", {
+    parse_mode: "HTML",
     reply_markup: keyboard,
   });
 });
@@ -371,9 +357,9 @@ bot.callbackQuery("start_search", async (ctx) => {
 
   await ctx.answerCallbackQuery();
   await ctx.editMessageText(
-    "🔍 **Enter the full name or symbol of the coin** you want to simulate (e.g., *Bitcoin* or *ETH*).",
+    `🔍 <b>Enter the full name or symbol of the coin</b> you want to simulate (e.g., <i>Bitcoin</i> or <b>ETH</b>).`,
     {
-      parse_mode: "Markdown",
+      parse_mode: "HTML",
       reply_markup: new InlineKeyboard().text("🔙 Back", "start_sim").row(),
     }
   );

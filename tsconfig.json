@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
-    "rootDir": "./api",
+    "rootDir": "./",
     "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "outDir": "./build",
