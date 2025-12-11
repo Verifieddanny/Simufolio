@@ -1,12 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { connectToDatabase } from "./lib/db.js";
-import { getCurrentPrice } from "./lib/coinGeckoApi.js";
+import { connectToDatabase } from "../lib/db.js";
+import { getCurrentPrice } from "../lib/coinGeckoApi.js";
 import {
   sendTelegramNotification,
   isNotificationDue,
-} from "./lib/notification_helpers.js";
+} from "../lib/notification_helpers.js";
 import { ObjectId } from "mongodb";
-import type { Subscription } from "./lib/portfolio.js";
+import type { Subscription } from "../lib/portfolio.js";
 
 const SUBSCRIPTION_COLLECTION = "subscriptions";
 
@@ -53,19 +53,18 @@ export default async (req: IncomingMessage, res: ServerResponse) => {
       const plSign = profitLoss >= 0 ? "+" : "";
 
       const message = `
-${deltaEmoji} *TimeVest Update: ${sub.cryptoId.toUpperCase()}*
-Subscription: ${sub.updateInterval}
+${deltaEmoji} \*TimeVest Update\: ${sub.cryptoId.toUpperCase()}\*
+Subscription\: ${sub.updateInterval}
 
-*Initial Investment:* $${sub.investmentAmount.toFixed(2)}
-*Current Value:* $${currentValue.toFixed(2)}
-*Total P&L:* ${plSign}$${profitLoss.toFixed(
+\*Initial Investment\:\* $${sub.investmentAmount.toFixed(2)}\\
+\*Current Value\:\* $${currentValue.toFixed(2)}\\
+\*Total P&L\:\* ${plSign}\\$${profitLoss.toFixed(
         2
-      )} (${plSign}${percentageChange.toFixed(2)}%)
-Current Price: $${currentPrice.toFixed(2)}
+      )}\\ (${plSign}${percentageChange.toFixed(2)}\\%)\
+Current Price\: $${currentPrice.toFixed(2)}\\
 
-To see all details, use the /start command.
+To see all details\, use the /start command\.
             `;
-
       // 4. Send Notification
       const success = await sendTelegramNotification(
         sub.telegramId,
