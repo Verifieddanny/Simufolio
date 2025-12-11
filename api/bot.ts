@@ -12,7 +12,7 @@ import {
   getSubscriptionById,
   getSubscriptionsByUserId,
 } from "../lib/portfolio.js";
-import { getSession, saveSession, clearSession } from "../lib/session.js";
+import { getSession, saveSession } from "../lib/session.js";
 import { ObjectId } from "mongodb";
 
 const token = process.env.TG_BOT_API_KEY!;
@@ -202,7 +202,7 @@ bot.callbackQuery(/^confirm_sub:(.+):(.+):(.+)$/, async (ctx) => {
       )}`,
       { parse_mode: "HTML" }
     );
-    await clearSession(telegramId);
+    // await clearSession(telegramId);
   } catch (dbError) {
     console.error("Database error creating subscription:", dbError);
     await ctx.editMessageText(
