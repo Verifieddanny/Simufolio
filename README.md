@@ -1,6 +1,6 @@
 # 🪙 SimuFolio Telegram Bot
 
-\![Bot Logo Placeholder]("")
+\![Bot Logo Placeholder]("https://cdn4.telesco.pe/file/juvLHSQ60Axfl1OXaybcOhppBsMm06PAYkbgKndrkWa7TM0W0wsezH88Qpw5GRLOnILSQN_lWUwSKGRBfZI8ZdVgiQgusS8Y0JCmX3smQcXyupEN2--NhCNVZ4IjxYxOuz8FALdPXaqxRi99KPR6pagUsbpOsyi5r_zzwlFlgnGkwZiYuwpGz_d_7_yW3mb07FVM492mYJxgWxaUf7RnW0H-7cvMgkuNVVxzu0RRR6dfj6GmGn_0Y2_eVNc8LYrNWZSTYG9t5P9GSBAkyc2Jn0KA5UlQ38XHt7NUMZTtK-CNTlJjybqNXC5anFKApfbj242x9_EDmMXfnSd9WS5VuQ.jpg")
 
 **A stateless, cross-platform Telegram bot that allows users to create virtual, long-term cryptocurrency portfolio simulations and receive automated performance updates on their virtual investments.**
 
